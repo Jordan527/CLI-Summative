@@ -1,0 +1,6 @@
+IMPORTS 
+stack install split
+stack install Hunit
+
+
+FUNCTIONALITY

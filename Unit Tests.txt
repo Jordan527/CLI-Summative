@@ -1,0 +1,8 @@
+DEFINITELY
+search
+writing to file
+reading from file
+deleting from file
+
+MAYBE
+menu path
