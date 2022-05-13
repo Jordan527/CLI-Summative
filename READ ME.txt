@@ -1,6 +1,44 @@
-IMPORTS 
-stack install split
-stack install Hunit
+CONTENTS OF THIS FILE
+---------------------
+
+ * Introduction
+ * Requirements
+ * Installation
+ * Configuration
+
+INTRODUCTION
+------------
+
+The module displays an interactive menu allowing providing the following options:
+
+ * Searching
+    * Students
+       * Name
+       * ID
+    * Modules
+       * Name
+       * ID
 
 
-FUNCTIONALITY
+REQUIREMENTS
+------------
+
+This module requires the following modules:
+
+ * [Split] (https://hackage.haskell.org/package/split-0.2.3.4/docs/Data-List-Split.html)
+ * [HUnit] (https://hackage.haskell.org/package/HUnit)
+
+
+INSTALLATION
+------------
+
+Before starting up the application, enter the following commands into the command line:
+
+ * stack install split
+ * stack install Hunit
+
+
+CONFIGURATION
+-------------
+
+The module has no modifiable settings. There is no configuration.
