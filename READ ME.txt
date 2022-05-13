@@ -1,3 +1,6 @@
+add info about file setup/design/naming
+change intro section to pure into and add existing stuff to contents 
+
 CONTENTS OF THIS FILE
 ---------------------
 

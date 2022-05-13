@@ -9,7 +9,8 @@ REQUIREMENTS
 
 {- 
 DO NEXT
-• load modules from file
+• option do display all student details in module rather than just id's
+• 
 -} 
 
 
@@ -55,7 +56,8 @@ main = do deleteFiles'
           putStrLn "\nWhat do you want to do?"
           putStrLn "1. Search for student details"
           putStrLn "2. Search for module details"
-          putStrLn "3. Quit"
+          putStrLn "3. Add student"
+          putStrLn "4. Quit"
           choice <- getLine
           menuPath choice students modules
 
@@ -63,7 +65,8 @@ invalidMain :: Students -> Modules -> IO ()
 invalidMain studentDict moduleDict = do putStrLn "\nThat is not a valid option!"
                                         putStrLn "1. Search for student details"
                                         putStrLn "2. Search for module details"
-                                        putStrLn "3. Quit"
+                                        putStrLn "3. Add student"
+                                        putStrLn "4. Quit"
                                         choice <- getLine
                                         menuPath choice studentDict moduleDict
 
@@ -71,7 +74,8 @@ menuPath :: String -> Students -> Modules -> IO()
 menuPath a studentDict moduleDict
          | a == "1" = searchStudent studentDict
          | a == "2" = searchModule moduleDict
-         | a == "3" = return ()
+         | a == "3" = addStudent studentDict
+         | a == "4" = return ()
          | otherwise = invalidMain studentDict moduleDict
 
 
@@ -172,7 +176,7 @@ searchStudent studentDict = do putStrLn ""
                                putStrLn "How would you like to search for the student?"
                                putStrLn "1. ID" 
                                putStrLn "2. Full name" 
-                               putStrLn "Else: Menu" 
+                               putStrLn "3. Menu" 
                                input <- getLine
                                let name = input
                                studentSearchPath input studentDict
@@ -181,7 +185,7 @@ studentSearchPath :: String -> Students -> IO ()
 studentSearchPath a studentDict
            | a == "1" = studentSearchID studentDict
            | a == "2" = studentSearchName studentDict
-           | otherwise = main
+           | a == "3" = main
 
 studentSearchID :: Students -> IO ()
 studentSearchID studentDict = do putStrLn ""
@@ -224,7 +228,7 @@ searchModule moduleDict = do putStrLn ""
                              putStrLn "How would you like to search for the module?"
                              putStrLn "1. ID" 
                              putStrLn "2. course" 
-                             putStrLn "Else: Menu" 
+                             putStrLn "3. Menu" 
                              input <- getLine
                              let name = input
                              moduleSearchPath input moduleDict
@@ -233,7 +237,7 @@ moduleSearchPath :: String -> Modules -> IO ()
 moduleSearchPath a moduleDict
            | a == "1" = moduleSearchID moduleDict
            | a == "2" = moduleSearchName moduleDict
-           | otherwise = main
+           | a == "3" = main
            
 moduleSearchID :: Modules -> IO ()
 moduleSearchID moduleDict = do putStrLn ""
@@ -268,7 +272,21 @@ moduleNameIteration course (x:xs) = do let module' = snd x
                                        then return (fst x)
                                        else moduleNameIteration course xs                                      
 
-
+{- ADD STUDENT -}
+addStudent :: Students -> IO ()
+addStudent dict = do putStr "Forename: "
+                     forename <- getLine
+                     putStr "Surname: "
+                     surname <- getLine
+                     putStr "Course: "
+                     course <- getLine
+                     putStr "Year: "
+                     year <- getLine
+                     let stringID = last' (M.keys (sDict dict))
+                         intID = (read stringID :: Integer) + 1
+                         id = show intID
+                     putStrLn id
+                     
            
 {- FORMAT FUNCTIONS -}
 printStudent :: Student -> IO ()
@@ -287,6 +305,9 @@ printModule module' = do putStrLn ("ID: " ++ (mID module'))
 
 pop :: [a] -> [a]
 pop list = take ((length list) - 1) list
+
+last' :: [a] -> a
+last' list = list !! 0
 
 createName :: (String, String) -> IO String
 createName (f, s) = return (f ++ " " ++ s)
