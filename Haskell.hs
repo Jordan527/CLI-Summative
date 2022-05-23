@@ -3,7 +3,7 @@ REQUIREMENTS
 • Your program will be a CLI application
 • Your program should have the ability to read a file format of your choice, which holds the initial modules and enrolled students   ********* DONE *********
 • Your program should have the ability to search for student details					********* DONE *********
-• Your program should have the ability to add new students and modules                  
+• Your program should have the ability to add new students and modules                  ********* DONE *********            
 • Your program should be able to output reports to a file (e.g., Students enrolled)
 -}
 
@@ -24,26 +24,25 @@ import Data.Maybe
 import Test.HUnit
 
 data Student = Student {
-               sID :: String,
+               sID :: Integer,
                forename :: String, 
                surname :: String, 
                course :: String, 
                year :: String} deriving (Eq, Show)
 
 data Module = Module {
-              mID :: String,
+              mID :: Integer,
               name :: String,
               studentIDs :: [String]} deriving (Eq, Show)
 
 
-data Students = Students {sDict::(M.Map String Student)} deriving (Show)
-studentDict :: M.Map String Student
+data Students = Students {sDict::(M.Map Integer Student)} deriving (Show)
+studentDict :: M.Map Integer Student
 studentDict = M.empty
 
-data Modules = Modules {mDict::(M.Map String Module)} deriving (Show)
-moduleDict :: M.Map String Module
+data Modules = Modules {mDict::(M.Map Integer Module)} deriving (Show)
+moduleDict :: M.Map Integer Module
 moduleDict = M.empty
-
 
 main :: IO ()
 main = do deleteFiles'
@@ -52,12 +51,14 @@ main = do deleteFiles'
           moduleDict <- loadModules
           let students = Students studentDict
           let modules = Modules moduleDict
+          refreshSource
           putStrLn ""
           putStrLn "\nWhat do you want to do?"
           putStrLn "1. Search for student details"
           putStrLn "2. Search for module details"
           putStrLn "3. Add student"
-          putStrLn "4. Quit"
+          putStrLn "4. Add student"
+          putStrLn "5. Quit"
           choice <- getLine
           menuPath choice students modules
 
@@ -66,7 +67,8 @@ invalidMain studentDict moduleDict = do putStrLn "\nThat is not a valid option!"
                                         putStrLn "1. Search for student details"
                                         putStrLn "2. Search for module details"
                                         putStrLn "3. Add student"
-                                        putStrLn "4. Quit"
+                                        putStrLn "4. Add student"
+                                        putStrLn "5. Quit"
                                         choice <- getLine
                                         menuPath choice studentDict moduleDict
 
@@ -75,13 +77,46 @@ menuPath a studentDict moduleDict
          | a == "1" = searchStudent studentDict
          | a == "2" = searchModule moduleDict
          | a == "3" = addStudent studentDict
-         | a == "4" = return ()
+         | a == "4" = addModule moduleDict
+         | a == "5" = return ()
          | otherwise = invalidMain studentDict moduleDict
 
 
 
 
 {- IMPORT DATA -}
+refreshSource :: IO ()
+refreshSource = do studentsDict <- loadStudents
+                   modulesDict <- loadModules
+                   let studentList = M.elems studentsDict
+                       moduleList = M.elems modulesDict
+                   removeFile "Data.txt"
+                   appendStudents studentList
+                   appendModules moduleList
+                   
+                   return ()
+
+appendStudents :: [Student] -> IO ()
+appendStudents [] = return ()
+appendStudents (x:xs) = do let id = sID x
+                               fore = forename x
+                               sur = surname x
+                               crs = course x
+                               yr = year x
+                               output = "Students.txt," ++ (show id) ++ "," ++ fore ++ "," ++ sur ++ "," ++ crs ++ "," ++ yr ++ "\n" 
+                           appendFile "Data.txt" output
+                           appendStudents xs
+
+appendModules :: [Module] -> IO ()
+appendModules [] = return ()
+appendModules (x:xs) = do let id = mID x
+                              title = name x
+                              students = studentIDs x
+                              studentsString = intercalate "," students
+                              output = "Modules.txt," ++ (show id) ++ "," ++ title ++ "," ++ studentsString ++ "\n" 
+                          appendFile "Data.txt" output
+                          appendModules xs
+
 deleteFiles' :: IO ()
 deleteFiles' = do studentFile <- doesFileExist "Students.txt"
                   if studentFile then removeFile "Students.txt" else print "Students.txt does not exist"
@@ -118,20 +153,20 @@ seperateFiles inputHandle = do ineof <- hIsEOF inputHandle
                                                    output = id ++ "," ++ name ++ "," ++ (intercalate "," students) ++ "," ++ "\n"
                                                appendFile "Modules.txt" output
                                                return () 
-loadStudents :: IO (M.Map [Char] Student)
+loadStudents :: IO (M.Map Integer Student)
 loadStudents = do inputHandle <- openFile "Students.txt" ReadMode
                   do dict <- readStudents inputHandle 
                      hClose inputHandle
                      return dict
 
-readStudents :: Handle -> IO (M.Map [Char] Student)
+readStudents :: Handle -> IO (M.Map Integer Student)
 readStudents inputHandle = do ineof <- hIsEOF inputHandle
                               let dict = studentDict
                               if ineof
                               then return dict 
                               else do outputString <- hGetLine inputHandle
                                       let line = splitOn "," outputString
-                                          id = line !! 0
+                                          id = read (line !! 0) :: Integer
                                           forename = line !! 1
                                           surname= line !! 2
                                           course = line !! 3
@@ -143,22 +178,22 @@ readStudents inputHandle = do ineof <- hIsEOF inputHandle
                                          let dict = M.insert id student newDict 
                                          return dict 
 
-loadModules :: IO (M.Map [Char] Module)
+loadModules :: IO (M.Map Integer Module)
 loadModules = do inputHandle <- openFile "Modules.txt" ReadMode
                  do dict <- readModules inputHandle 
                     hClose inputHandle
                     return dict
                      
-readModules :: Handle -> IO (M.Map [Char] Module)
+readModules :: Handle -> IO (M.Map Integer Module)
 readModules inputHandle = do ineof <- hIsEOF inputHandle
                              let dict = moduleDict
                              if ineof
                              then return dict 
                              else do outputString <- hGetLine inputHandle
                                      let line = splitOn "," outputString
-                                         id = line !! 0
+                                         id = read (line !! 0) :: Integer
                                          name = line !! 1
-                                         students = pop (drop 2 line)
+                                         students = init (drop 2 line)
                                          module' = Module id name students
                                          emptyDict = moduleDict
                                          dict = M.insert id module' emptyDict 
@@ -191,7 +226,8 @@ studentSearchID :: Students -> IO ()
 studentSearchID studentDict = do putStrLn ""
                                  putStrLn "Enter a student ID"
                                  studentID <- getLine
-                                 let student = M.lookup studentID (sDict studentDict)
+                                 let studentIDint = read studentID::Integer
+                                 let student = M.lookup studentIDint (sDict studentDict)
                                  putStrLn ""
                                  let student' = removeMaybe student
                                  if student' == []
@@ -213,8 +249,8 @@ studentSearchName studentDict = do putStrLn ""
                                       else printStudent (head student')
                                       main
 
-studentNameIteration :: String -> [(String, Student)] -> IO String
-studentNameIteration _ [] = return " "
+studentNameIteration :: String -> [(Integer, Student)] -> IO Integer
+studentNameIteration _ [] = return 0
 studentNameIteration name (x:xs) = do let student = snd x
                                       do studentName <- createName (forename student, surname student)
                                          if lower studentName == lower name
@@ -243,7 +279,8 @@ moduleSearchID :: Modules -> IO ()
 moduleSearchID moduleDict = do putStrLn ""
                                putStrLn "Enter a module ID"
                                moduleID <- getLine
-                               let module' = M.lookup moduleID (mDict moduleDict)
+                               let moduleIDint = read moduleID :: Integer
+                               let module' = M.lookup moduleIDint (mDict moduleDict)
                                putStrLn ""
                                let module'' = removeMaybe module'
                                if module'' == []
@@ -265,14 +302,14 @@ moduleSearchName moduleDict = do putStrLn ""
                                     else printModule (head module'')
                                     main
 
-moduleNameIteration :: String -> [(String, Module)] -> IO String
-moduleNameIteration _ [] = return " "
+moduleNameIteration :: String -> [(Integer, Module)] -> IO Integer
+moduleNameIteration _ [] = return 0
 moduleNameIteration course (x:xs) = do let module' = snd x
                                        if lower course == lower (name module')
                                        then return (fst x)
                                        else moduleNameIteration course xs                                      
 
-{- ADD STUDENT -}
+{- ADD -}
 addStudent :: Students -> IO ()
 addStudent dict = do putStr "Forename: "
                      forename <- getLine
@@ -282,15 +319,30 @@ addStudent dict = do putStr "Forename: "
                      course <- getLine
                      putStr "Year: "
                      year <- getLine
-                     let stringID = last' (M.keys (sDict dict))
-                         intID = (read stringID :: Integer) + 1
-                         id = show intID
-                     putStrLn id
+                     let lastID = last (M.keys (sDict dict))
+                         id = lastID + 1
+                         output = "" ++ (show id) ++ "," ++ forename ++ "," ++ surname ++ "," ++ course ++ "," ++ year ++ ","
+                     appendFile "Students.txt" output
+                     refreshSource
+                     return ()
                      
+addModule :: Modules -> IO ()
+addModule dict = do putStr "Title: "
+                    title <- getLine
+                    putStr "Student IDs (seperate by commas, no spaces): "
+                    ids <- getLine
+                    let lastID = last (M.keys (mDict dict))
+                        id = lastID + 1
+                        output = "" ++ (show id) ++ "," ++ title ++ "," ++ ids ++ ","
+                    appendFile "Modules.txt" output
+                    refreshSource
+                    return ()
+
+
            
 {- FORMAT FUNCTIONS -}
 printStudent :: Student -> IO ()
-printStudent student = do putStrLn ("ID: " ++ (sID student))
+printStudent student = do putStrLn ("ID: " ++ (show (sID student)))
                           putStrLn ("Forename: " ++ (forename student))
                           putStrLn ("Surname: " ++ (surname student))
                           putStrLn ("Course: " ++ (course student))
@@ -298,16 +350,13 @@ printStudent student = do putStrLn ("ID: " ++ (sID student))
                           return ()
                          
 printModule :: Module -> IO ()
-printModule module' = do putStrLn ("ID: " ++ (mID module'))
+printModule module' = do putStrLn ("ID: " ++ (show (mID module')))
                          putStrLn ("Course: " ++ (name module'))
                          putStrLn ("Students ID's: " ++ (intercalate "," (studentIDs module')))
                          return ()
 
 pop :: [a] -> [a]
 pop list = take ((length list) - 1) list
-
-last' :: [a] -> a
-last' list = list !! 0
 
 createName :: (String, String) -> IO String
 createName (f, s) = return (f ++ " " ++ s)
