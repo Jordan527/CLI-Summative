@@ -1,3 +1,5 @@
-3,Java,2,11,
+5,Python,3,5,
+4,Haskell,2,3,
+3,Java,2,5,
 2,Object Oriented Programming,3,4,
 1,Functional Programming,1,2,
