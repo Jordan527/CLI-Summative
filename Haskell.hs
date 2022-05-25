@@ -7,6 +7,8 @@ import Data.List
 import Data.Maybe
 import Test.HUnit
 
+
+{- DATA TYPES -} 
 data Student = Student {
                sID :: Integer,
                forename :: String, 
@@ -28,6 +30,8 @@ data Modules = Modules {mDict::(M.Map Integer Module)} deriving (Show)
 moduleDict :: M.Map Integer Module
 moduleDict = M.empty
 
+
+{- MAIN -}
 main :: IO ()
 main = do deleteFiles'
           readFiles'
