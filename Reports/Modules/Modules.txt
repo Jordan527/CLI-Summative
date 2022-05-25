@@ -1,0 +1,20 @@
+Module ID: 1
+Title: Functional Programming
+Students: 1,2
+
+Module ID: 2
+Title: Object Oriented Programming
+Students: 3,4
+
+Module ID: 3
+Title: Java
+Students: 2,5
+
+Module ID: 4
+Title: Haskell
+Students: 2,3
+
+Module ID: 5
+Title: Python
+Students: 3,5
+

@@ -1,5 +1,0 @@
-Student ID: 1
-Forename: Jordan
-Surname: Alibhai
-Course: Software Engineering
-Year: 2

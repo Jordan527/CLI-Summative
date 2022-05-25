@@ -1,0 +1,12 @@
+Core
+Efficiency 
+• Check functions to avoid repetition
+• Check functions to see if imported libraries can take do the same thing
+Design 
+• Fix menu path so invalid input allows another attempt
+
+
+Additional
+Features
+• Edit details
+• Cleanup function that removes all unnecessary files

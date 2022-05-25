@@ -1,0 +1,30 @@
+Student ID: 1
+Forename: Jordan
+Surname: Alibhai
+Course: Software Engineering
+Year: 2
+
+Student ID: 2
+Forename: Lucy
+Surname: Baldina
+Course: Law
+Year: 3
+
+Student ID: 3
+Forename: Tyler
+Surname: Cunningham
+Course: Data Science
+Year: 3
+
+Student ID: 4
+Forename: Ethan
+Surname: Dowler
+Course: Civil Engineering
+Year: 3
+
+Student ID: 5
+Forename: Steve
+Surname: Martin
+Course: Maths
+Year: 3
+
