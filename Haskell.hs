@@ -7,12 +7,6 @@ REQUIREMENTS
 • Your program should be able to output reports to a file (e.g., Students enrolled)     ********* DONE *********
 -}
 
-{- 
-DO NEXT
-• option do display all student details in module rather than just id's
-• do checks before allowing students and modules to be added (existing entries)
--} 
-
 
 import System.IO
 import System.Directory
