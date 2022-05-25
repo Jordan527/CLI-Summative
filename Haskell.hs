@@ -1,13 +1,3 @@
-{-
-REQUIREMENTS
-• Your program will be a CLI application
-• Your program should have the ability to read a file format of your choice, which holds the initial modules and enrolled students   ********* DONE *********
-• Your program should have the ability to search for student details					********* DONE *********
-• Your program should have the ability to add new students and modules                  ********* PARTIALLY DONE *********   NO CHECKS         
-• Your program should be able to output reports to a file (e.g., Students enrolled)     ********* DONE *********
--}
-
-
 import System.IO
 import System.Directory
 import qualified Data.Map as M
