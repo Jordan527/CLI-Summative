@@ -660,25 +660,3 @@ stringsToInts list = [read x :: Integer | x <- list]
 
 studentIDsOutput :: [Integer] -> String
 studentIDsOutput list = intercalate "," [show x | x <- list]
-
-
-
-{- 
-***** TESTS ***** 
-runTestTT tests
--}
-
-stringList :: [Int] -> [String]
-stringList x = map show x
-
-test1 = TestCase (assertEqual "pop [1..5] Int" [1..5] (pop [1..6]))
-test2 = TestCase (assertEqual "pop [1..1000] Int" [1..999] (pop [1..1000]))
-test3 = TestCase (assertEqual "pop [] Int" [] (pop [1]))
-{-
-test4 = TestCase (do list <- stringList [1..5]
-                     assertEqual "pop [1..5] String" 5 (pop list))
--}                     
-
-tests = TestList [TestLabel "Small Int pop test" test1, 
-                  TestLabel "Large Int pop test" test2, 
-                  TestLabel "Empty pop test" test3]
