@@ -1,27 +1,44 @@
-add info about file setup/design/naming
 change intro section to pure into and add existing stuff to contents 
 
 CONTENTS OF THIS FILE
 ---------------------
 
  * Introduction
+ * Menu Layout
  * Requirements
  * Installation
  * Configuration
 
 INTRODUCTION
 ------------
+This module is a student directory that allows the storage and modification of student and module records
 
+
+Menu Layout
+-----------
 The module displays an interactive menu allowing providing the following options:
 
  * Searching
     * Students
-       * Name
        * ID
+       * Full Name
+       * Surname
     * Modules
-       * Name
        * ID
-
+       * Name
+ * Adding
+    * Student
+    * Module
+ * Deleting 
+    * Student
+    * Module
+ * Create Report
+    * Student
+       * Individual
+       * Overall
+    * Module
+       * Individual
+       * Overall
 
 REQUIREMENTS
 ------------
@@ -44,4 +61,11 @@ Before starting up the application, enter the following commands into the comman
 CONFIGURATION
 -------------
 
-The module has no modifiable settings. There is no configuration.
+This module requires a file called "Data.txt" to be placed within the the "Sources" folder.
+Student records should have the following format:
+	Students.txt,id,forename,surname,course,year
+Module records should have the following format:
+	Modules.txt,id,name,student ids
+
+ * Each student id in the module record should be comma seperated.
+ * there should be no spaces before or after any commas

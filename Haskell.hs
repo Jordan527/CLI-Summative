@@ -185,73 +185,7 @@ moduleReportPath a modules students
                  | a == "3" = main
 
 
-{- IMPORT DATA -}
-refreshSource :: IO ()
-refreshSource = do studentsDict <- loadStudents
-                   modulesDict <- loadModules
-                   let studentList = M.elems studentsDict
-                       moduleList = M.elems modulesDict
-                   removeFile "Sources/Data.txt"
-                   appendStudents studentList
-                   appendModules moduleList
-                   
-                   return ()
-
-appendStudents :: [Student] -> IO ()
-appendStudents [] = return ()
-appendStudents (x:xs) = do let id = sID x
-                               fore = forename x
-                               sur = surname x
-                               crs = course x
-                               yr = year x
-                               output = "Students.txt," ++ (show id) ++ "," ++ fore ++ "," ++ sur ++ "," ++ crs ++ "," ++ yr ++ ",\n" 
-                           appendFile "Sources/Data.txt" output
-                           appendStudents xs    
-
-appendModules :: [Module] -> IO ()
-appendModules [] = return ()
-appendModules (x:xs) = do let id = mID x
-                              title = name x
-                              students = studentIDsOutput (studentIDs x)
-                              output = "Modules.txt," ++ (show id) ++ "," ++ title ++ "," ++ students ++ "\n" 
-                          appendFile "Sources/Data.txt" output
-                          appendModules xs
-
-writeStudents :: Students -> IO ()
-writeStudents students = do removeFile "Sources/Students.txt"
-                            let list = M.elems (sDict students)
-                            writeStudentsCore list
-                            refreshSource
-                            
-
-writeStudentsCore :: [Student] -> IO ()
-writeStudentsCore [] = return ()
-writeStudentsCore (x:xs) = do let id = sID x
-                                  fore = forename x
-                                  sur = surname x
-                                  crs = course x
-                                  yr = year x
-                                  output = "" ++ (show id) ++ "," ++ fore ++ "," ++ sur ++ "," ++ crs ++ "," ++ yr ++ ",\n" 
-                              appendFile "Sources/Students.txt" output
-                              writeStudentsCore xs   
-
-writeModules :: Modules -> IO ()
-writeModules modules = do removeFile "Sources/Modules.txt"
-                          let list = M.elems (mDict modules)
-                          writeModulesCore list
-                          refreshSource
-                    
-writeModulesCore :: [Module] -> IO ()
-writeModulesCore [] = return ()
-writeModulesCore (x:xs) = do let id = mID x
-                                 title = name x
-                                 intIDs = studentIDs x
-                                 ids = studentIDsOutput intIDs
-                                 output = (show id) ++ "," ++ title ++ "," ++ ids ++ ",\n"
-                             appendFile "Sources/Modules.txt" output
-                             writeModulesCore xs
-                                 
-
+{- IMPORT DATA -}                               
 deleteFiles' :: IO ()
 deleteFiles' = do studentFile <- doesFileExist "Sources/Students.txt"
                   if studentFile then removeFile "Sources/Students.txt" else print "Sources/Students.txt does not exist"
@@ -337,7 +271,70 @@ readModules inputHandle = do ineof <- hIsEOF inputHandle
                                         let dict = M.insert id module' newDict 
                                         return dict 
                                      
+refreshSource :: IO ()
+refreshSource = do studentsDict <- loadStudents
+                   modulesDict <- loadModules
+                   let studentList = M.elems studentsDict
+                       moduleList = M.elems modulesDict
+                   removeFile "Sources/Data.txt"
+                   appendStudents studentList
+                   appendModules moduleList
+                   
+                   return ()
 
+appendStudents :: [Student] -> IO ()
+appendStudents [] = return ()
+appendStudents (x:xs) = do let id = sID x
+                               fore = forename x
+                               sur = surname x
+                               crs = course x
+                               yr = year x
+                               output = "Students.txt," ++ (show id) ++ "," ++ fore ++ "," ++ sur ++ "," ++ crs ++ "," ++ yr ++ ",\n" 
+                           appendFile "Sources/Data.txt" output
+                           appendStudents xs    
+
+appendModules :: [Module] -> IO ()
+appendModules [] = return ()
+appendModules (x:xs) = do let id = mID x
+                              title = name x
+                              students = studentIDsOutput (studentIDs x)
+                              output = "Modules.txt," ++ (show id) ++ "," ++ title ++ "," ++ students ++ "\n" 
+                          appendFile "Sources/Data.txt" output
+                          appendModules xs
+
+writeStudents :: Students -> IO ()
+writeStudents students = do removeFile "Sources/Students.txt"
+                            let list = M.elems (sDict students)
+                            writeStudentsCore list
+                            refreshSource
+                            
+
+writeStudentsCore :: [Student] -> IO ()
+writeStudentsCore [] = return ()
+writeStudentsCore (x:xs) = do let id = sID x
+                                  fore = forename x
+                                  sur = surname x
+                                  crs = course x
+                                  yr = year x
+                                  output = "" ++ (show id) ++ "," ++ fore ++ "," ++ sur ++ "," ++ crs ++ "," ++ yr ++ ",\n" 
+                              appendFile "Sources/Students.txt" output
+                              writeStudentsCore xs   
+
+writeModules :: Modules -> IO ()
+writeModules modules = do removeFile "Sources/Modules.txt"
+                          let list = M.elems (mDict modules)
+                          writeModulesCore list
+                          refreshSource
+                    
+writeModulesCore :: [Module] -> IO ()
+writeModulesCore [] = return ()
+writeModulesCore (x:xs) = do let id = mID x
+                                 title = name x
+                                 intIDs = studentIDs x
+                                 ids = studentIDsOutput intIDs
+                                 output = (show id) ++ "," ++ title ++ "," ++ ids ++ ",\n"
+                             appendFile "Sources/Modules.txt" output
+                             writeModulesCore xs
                                
 
 
@@ -346,13 +343,16 @@ studentSearchID :: Students -> IO ()
 studentSearchID students = do putStrLn ""
                               putStrLn "Enter a student ID"
                               studentID <- getLine
-                              let studentIDint = read studentID::Integer
-                              let student = M.lookup studentIDint (sDict students)
-                              putStrLn ""
-                              let student' = removeMaybe student
-                              if student' == []
-                              then putStrLn "Student not found"
-                              else printStudent (head student')
+                              let digi = all isDigit studentID
+                              if digi
+                              then do let studentIDint = read studentID::Integer
+                                          student = M.lookup studentIDint (sDict students)
+                                          student' = removeMaybe student
+                                      putStrLn ""
+                                      if student' == []
+                                      then putStrLn "Student not found"
+                                      else printStudent (head student')
+                              else putStrLn "This is not a valid ID"
                               main
 
 studentSearchFullName :: Students -> IO ()
@@ -415,13 +415,16 @@ moduleSearchID :: Modules -> IO ()
 moduleSearchID moduleDict = do putStrLn ""
                                putStrLn "Enter a module ID"
                                moduleID <- getLine
-                               let moduleIDint = read moduleID :: Integer
-                               let module' = M.lookup moduleIDint (mDict moduleDict)
-                               putStrLn ""
-                               let module'' = removeMaybe module'
-                               if module'' == []
-                               then putStrLn "Module not found"
-                               else printModule (head module'')
+                               let digi = all isDigit moduleID
+                               if digi 
+                               then do let moduleIDint = read moduleID :: Integer
+                                           module' = M.lookup moduleIDint (mDict moduleDict)
+                                           module'' = removeMaybe module'
+                                       putStrLn ""
+                                       if module'' == []
+                                       then putStrLn "Module not found"
+                                       else printModule (head module'')
+                               else putStrLn "This is not a valid ID"
                                main
                                
 moduleSearchName :: Modules -> IO ()
@@ -475,17 +478,22 @@ addModule modules students = do putStr "Title: "
                                 title <- getLine
                                 putStr "Student IDs (seperate by commas, no spaces): "
                                 inIDs <- getLine
-                                let lastID = last (M.keys (mDict modules))
-                                    id = lastID + 1
-                                    stringIDs = splitOn "," inIDs
-                                    ids = stringsToInts stringIDs
-                                    output = "" ++ (show id) ++ "," ++ title ++ "," ++ inIDs ++ ","
-                                do invalid <- invalidID ids students
-                                   if invalid
-                                   then putStrLn "A student ID was invalid"
-                                   else do appendFile "Sources/Modules.txt" output
-                                           refreshSource
-                                   main
+                                let moduleLists = M.toList (mDict modules)
+                                do moduleID <- moduleNameIteration title moduleLists
+                                   let nameExists = M.member moduleID (mDict modules)
+                                   if not nameExists
+                                   then do let lastID = last (M.keys (mDict modules))
+                                               id = lastID + 1
+                                               stringIDs = splitOn "," inIDs
+                                               ids = stringsToInts stringIDs
+                                               output = "" ++ (show id) ++ "," ++ title ++ "," ++ inIDs ++ ","
+                                           do invalid <- invalidID ids students
+                                              if invalid
+                                              then putStrLn "A student ID was invalid"
+                                              else do appendFile "Sources/Modules.txt" output
+                                                      refreshSource
+                                   else putStrLn "A module with this name already exists"
+                                main
                                 
 invalidID :: [Integer] -> Students -> IO Bool
 invalidID [] _ = return False
@@ -501,39 +509,48 @@ invalidID (x:xs) students = do let dict = sDict students
 deleteStudent :: Students -> IO ()
 deleteStudent students = do putStrLn "What is the student ID?"
                             inID <- getLine
-                            let dict = sDict students
-                                id = read inID :: Integer
-                                exists = M.member id dict
-                            if not exists 
-                            then putStrLn "This ID does not exist"
-                            else do let newDict = M.delete id dict
-                                        newStudents = Students newDict
-                                    writeStudents newStudents
+                            let digi = all isDigit inID
+                            if digi
+                            then do let dict = sDict students
+                                        id = read inID :: Integer
+                                        exists = M.member id dict
+                                    if not exists 
+                                    then putStrLn "This ID does not exist"
+                                    else do let newDict = M.delete id dict
+                                                newStudents = Students newDict
+                                            writeStudents newStudents
+                            else putStrLn "This is not a valid ID"
                             main
 
 deleteModule :: Modules -> IO ()
 deleteModule modules = do putStrLn "What is the module ID?"
                           inID <- getLine
-                          let dict = mDict modules
-                              id = read inID :: Integer
-                              exists = M.member id dict
-                          if not exists 
-                          then putStrLn "This ID does not exist"
-                          else do let newDict = M.delete id dict
-                                      newModules = Modules newDict
-                                  writeModules newModules
+                          let digi = all isDigit inID
+                          if digi
+                          then do let dict = mDict modules
+                                      id = read inID :: Integer
+                                      exists = M.member id dict
+                                  if not exists 
+                                  then putStrLn "This ID does not exist"
+                                  else do let newDict = M.delete id dict
+                                              newModules = Modules newDict
+                                          writeModules newModules
+                          else putStrLn "This is not a valid ID"
                           main
 
 {- REPORTS -}
 studentIndividualReport :: Students -> IO ()
 studentIndividualReport students = do putStrLn "What is the student ID?"
                                       inID <- getLine
-                                      let id = read inID :: Integer
-                                          dictStudent = M.lookup id (sDict students)
-                                          student = removeMaybe dictStudent
-                                      if student == []
-                                      then putStrLn "Student not found"
-                                      else createIndividualStudentReport (head student)
+                                      let digi = all isDigit inID
+                                      if digi
+                                      then do let id = read inID :: Integer
+                                                  dictStudent = M.lookup id (sDict students)
+                                                  student = removeMaybe dictStudent
+                                              if student == []
+                                              then putStrLn "Student not found"
+                                              else createIndividualStudentReport (head student)
+                                      else putStrLn "This is not a valid ID"
                                       main
 
 createIndividualStudentReport :: Student -> IO ()
@@ -572,12 +589,15 @@ createOverallStudentReport (x:xs) = do let id = "Student ID: " ++ (show (sID x))
 moduleIndividualReport :: Modules -> Students -> IO ()
 moduleIndividualReport modules students = do putStrLn "What is the module ID?"
                                              inID <- getLine
-                                             let id = read inID :: Integer
-                                                 dictModule = M.lookup id (mDict modules)
-                                                 module' = removeMaybe dictModule
-                                             if module' == []
-                                             then putStrLn "Module not found"
-                                             else createIndividualModuleReport (head module') students
+                                             let digi = all isDigit inID
+                                             if digi
+                                             then do let id = read inID :: Integer
+                                                         dictModule = M.lookup id (mDict modules)
+                                                         module' = removeMaybe dictModule
+                                                     if module' == []
+                                                     then putStrLn "Module not found"
+                                                     else createIndividualModuleReport (head module') students
+                                             else putStrLn "This is not a valid ID"
                                              main
 
 createIndividualModuleReport :: Module -> Students -> IO ()
